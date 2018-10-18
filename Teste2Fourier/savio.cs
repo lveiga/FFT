@@ -87,8 +87,6 @@ namespace Teste2Fourier
                             matrixSomaOndas[coluna, linha] = matrixOndas[0,linha] + matrixOndas[(coluna + 1), linha];
                         }
                     }
-
-
                 }
             }
         }
