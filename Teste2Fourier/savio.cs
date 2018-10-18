@@ -13,7 +13,8 @@ namespace Teste2Fourier
         {
             CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
             ci.NumberFormat.CurrencyDecimalSeparator = ".";
-            string filename = @"C:\workspace\FFT_BOT\Teste2Fourier\savio_test.txt";
+            //string filename = @"C:\workspace\FFT_BOT\Teste2Fourier\savio_test.txt";
+            string filename = @"C:\Users\lucas\source\repos\Teste2Fourier\Teste2Fourier\savio_test.txt";
             double mediaPeriodo = 0;
             double periodo = 30;
             int startLine = 0;
@@ -41,8 +42,11 @@ namespace Teste2Fourier
             lcoOHLCEntity.ForEach(x => mediaPeriodo += x.Close);
             mediaPeriodo = mediaPeriodo / periodo;
 
-            double[] senosBase = new double[30];
+            double[] Base = new double[30];
             double[,] matrixSenos = new double[10, 31];
+            double[,] matrixConsenos = new double[10, 31];
+            double[,] matrixOndas = new double[10, 30];
+            double[,] matrixSomaOndas = new double[9, 30];
 
             double[] senosIndice1 = new double[30];
 
@@ -66,26 +70,67 @@ namespace Teste2Fourier
                 {
                     foreach (OHLCEntity item in OHLCPeriodo)
                     {
-                        senosBase[countSeno] = item.Close - mediaPeriodo;
+                        Base[countSeno] = item.Close - mediaPeriodo;
                         countSeno++;
                     }
 
-                    for (int coluna = 0; coluna < 10; coluna++)
-                    {
-                        double media = 0;
+                    ObterSenos(Base, matrixSenos, ponto, ponto2);
 
+                    ObterCosenos(Base, matrixSenos, matrixConsenos, ponto, ponto2);
+
+                    ObterOndas(matrixSenos, matrixConsenos, matrixOndas);
+
+                    for (int coluna = 0; coluna < 9; coluna++)
+                    {
                         for (int linha = 0; linha < 30; linha++)
                         {
-                            matrixSenos[coluna, linha] = senosBase[linha] * Math.Sin(ponto * (linha + 1) * ponto2 * (coluna + 1));
-                            media += matrixSenos[coluna, linha];
+                            matrixSomaOndas[coluna, linha] = matrixOndas[0,linha] + matrixOndas[(coluna + 1), linha];
                         }
-
-                        matrixSenos[coluna, 30] = media / 30;
                     }
 
-
-
                 }
+            }
+        }
+
+        private static void ObterOndas(double[,] matrixSenos, double[,] matrixConsenos, double[,] matrixOndas)
+        {
+            for (int coluna = 0; coluna < 10; coluna++)
+            {
+                for (int linha = 0; linha < 30; linha++)
+                {
+                    matrixOndas[coluna, linha] = matrixSenos[coluna, 30] * Math.Sin(0.05 * (linha + 1) * 1.5 * (coluna + 1)) + matrixConsenos[coluna, 30] * Math.Cos(0.05 * (linha + 1) * 1.5 * (coluna + 1));
+                }
+            }
+        }
+
+        private static void ObterCosenos(double[] senosBase, double[,] matrixSenos, double[,] matrixConsenos, double ponto, double ponto2)
+        {
+            for (int coluna = 0; coluna < 10; coluna++)
+            {
+                double media = 0;
+                for (int linha = 0; linha < 30; linha++)
+                {
+                    matrixConsenos[coluna, linha] = senosBase[linha] * Math.Cos(ponto * (linha + 1) * ponto2 * (coluna + 1));
+                    media += matrixConsenos[coluna, linha];
+                }
+
+                matrixConsenos[coluna, 30] = media / 30;
+            }
+        }
+
+        private static void ObterSenos(double[] cosenoBase, double[,] matrixSenos, double ponto, double ponto2)
+        {
+            for (int coluna = 0; coluna < 10; coluna++)
+            {
+                double media = 0;
+
+                for (int linha = 0; linha < 30; linha++)
+                {
+                    matrixSenos[coluna, linha] = cosenoBase[linha] * Math.Sin(ponto * (linha + 1) * ponto2 * (coluna + 1));
+                    media += matrixSenos[coluna, linha];
+                }
+
+                matrixSenos[coluna, 30] = media / 30;
             }
         }
     }
