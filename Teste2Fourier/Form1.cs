@@ -56,6 +56,9 @@ namespace Teste2Fourier
         {
             savio s = new savio();
             s.processar();
+
+            chart1.Series["Series1"].Points.AddXY(1, s.matrixOndas);
+            chart1.Series["Series2"].Points.AddXY(1, s.matrixSomaOndas);
         }
     }
 }

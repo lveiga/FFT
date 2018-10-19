@@ -9,6 +9,9 @@ namespace Teste2Fourier
     public class savio
     {
 
+        public double[,] matrixOndas = new double[10, 30];
+        public double[,] matrixSomaOndas = new double[9, 30];
+
         public void processar()
         {
             CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
@@ -45,17 +48,17 @@ namespace Teste2Fourier
             double[] Base = new double[30];
             double[,] matrixSenos = new double[10, 31];
             double[,] matrixConsenos = new double[10, 31];
-            double[,] matrixOndas = new double[10, 30];
-            double[,] matrixSomaOndas = new double[9, 30];
 
             double[] senosIndice1 = new double[30];
 
             bool aindaExistePeriodo = true;
 
+            int skipResult = 0;
+            int takeResult = 30;
+
             while (aindaExistePeriodo)
             {
-                int skipResult = 0;
-                int takeResult = 30;
+                
                 int countSeno = 0;
                 double ponto = 0.05;
                 double ponto2 = 1.5;
@@ -88,6 +91,7 @@ namespace Teste2Fourier
                         }
                     }
                 }
+                skipResult += 30;
             }
         }
 
