@@ -10,6 +10,8 @@ namespace Teste2Fourier
     {
 
         public double[,] matrixOndas = new double[10, 30];
+        public double[] Mercado = new double[30];
+        public double[] SomaOndas = new double[30];
         public double[,] matrixSomaOndas = new double[9, 30];
 
         public void processar()
@@ -21,6 +23,8 @@ namespace Teste2Fourier
             double mediaPeriodo = 0;
             double periodo = 30;
             int startLine = 0;
+            int linhaMercado = 0;
+            
 
             List<OHLCEntity> lcoOHLCEntity = new List<OHLCEntity>();
 
@@ -39,6 +43,11 @@ namespace Teste2Fourier
                         Close = double.Parse(temp[4], NumberStyles.Any, ci)
                     };
                     lcoOHLCEntity.Add(oHLCEntity);
+
+                    
+                    Mercado[linhaMercado] = double.Parse(temp[4], NumberStyles.Any, ci);
+                    linhaMercado++;
+                    
                 }
             }
 
@@ -90,6 +99,13 @@ namespace Teste2Fourier
                             matrixSomaOndas[coluna, linha] = matrixOndas[0,linha] + matrixOndas[(coluna + 1), linha];
                         }
                     }
+
+                                                           
+                    for (int linhaSomaOndas = 0; linhaSomaOndas < 30; linhaSomaOndas++)
+                    {
+                        SomaOndas[linhaSomaOndas] = matrixSomaOndas[7,linhaSomaOndas];
+                    }
+
                 }
                 skipResult += 30;
             }
