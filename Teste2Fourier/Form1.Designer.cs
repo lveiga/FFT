@@ -73,6 +73,7 @@
             this.chart1.Size = new System.Drawing.Size(719, 300);
             this.chart1.TabIndex = 2;
             this.chart1.Text = "chart1";
+            
             // 
             // chart2
             // 

@@ -31,7 +31,6 @@ namespace Teste2Fourier
 
             chart1.Series["Mercado"].Points.DataBindY(s.Mercado);
             chart2.Series["SomaOndas"].Points.DataBindY(s.SomaOndas);
-            
 
         }
     }

@@ -12,7 +12,7 @@ namespace Teste2Fourier
         public double[,] matrixOndas = new double[10, 30];
         public double[] Mercado = new double[30];
         public double[] SomaOndas = new double[30];
-        public double[,] matrixSomaOndas = new double[9, 30];
+        public double[,] matrixSomaOndas = new double[9, 31];
 
         public void processar()
         {
@@ -94,21 +94,40 @@ namespace Teste2Fourier
 
                     for (int coluna = 0; coluna < 9; coluna++)
                     {
+                        double[] mediaArray = new double[30];
                         for (int linha = 0; linha < 30; linha++)
                         {
-                            matrixSomaOndas[coluna, linha] = matrixOndas[0,linha] + matrixOndas[(coluna + 1), linha];
+                            matrixSomaOndas[coluna, linha] = matrixOndas[0, linha] + matrixOndas[(coluna + 1), linha];
+                            mediaArray[linha] = matrixOndas[0, linha] + matrixOndas[(coluna + 1), linha];
                         }
+
+                        matrixSomaOndas[coluna, 30] = ComputarCoeficiente(Mercado, mediaArray);
                     }
 
-                                                           
+                    int maior = ObterMaiorPorcentagem();
+
                     for (int linhaSomaOndas = 0; linhaSomaOndas < 30; linhaSomaOndas++)
                     {
-                        SomaOndas[linhaSomaOndas] = matrixSomaOndas[7,linhaSomaOndas];
+                        SomaOndas[linhaSomaOndas] = matrixSomaOndas[maior, linhaSomaOndas];
                     }
 
                 }
                 skipResult += 30;
             }
+        }
+
+        private int ObterMaiorPorcentagem()
+        {
+            int maior = 0;
+            for (int coluna = 1; coluna < 8; coluna++)
+            {
+                if (matrixSomaOndas[(coluna), 30] > matrixSomaOndas[(coluna + 1), 30])
+                    maior = coluna;
+                else
+                    maior = coluna + 1;
+            }
+
+            return maior;
         }
 
         private static void ObterOndas(double[,] matrixSenos, double[,] matrixConsenos, double[,] matrixOndas)
@@ -153,7 +172,7 @@ namespace Teste2Fourier
             }
         }
 
-        private double ComputeCoeff(double[] values1, double[] values2)
+        private double ComputarCoeficiente(double[] values1, double[] values2)
         {
             if (values1.Length != values2.Length)
                 throw new ArgumentException("values must be the same length");
