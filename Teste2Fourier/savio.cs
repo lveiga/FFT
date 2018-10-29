@@ -17,6 +17,7 @@ namespace Teste2Fourier
         public double[] SomaOndas = new double[30];
         public double[,] matrixSomaOndas = new double[9, 31];
         public Complex[,] complex = new Complex[9, 30];
+        public int maior = 0;
 
         public List<OHLCEntity> processar()
         {
@@ -100,7 +101,7 @@ namespace Teste2Fourier
 
         private void PreenchendoMelhorOnda()
         {
-            int maior = ObterMaiorPorcentagem();
+            maior = ObterMaiorPorcentagem();
 
             for (int linhaSomaOndas = 0; linhaSomaOndas < 30; linhaSomaOndas++)
             {
@@ -126,13 +127,14 @@ namespace Teste2Fourier
         private int ObterMaiorPorcentagem()
         {
             int maior = 0;
-            for (int coluna = 1; coluna < 8; coluna++)
+            double[] maxValues = new double[9];
+            for (int coluna = 0; coluna < 9; coluna++)
             {
-                if (matrixSomaOndas[(coluna), 30] > matrixSomaOndas[(coluna + 1), 30])
-                    maior = coluna;
-                else
-                    maior = coluna + 1;
+                maxValues[coluna] = matrixSomaOndas[(coluna), 30];
             }
+
+            double maxValue = maxValues.Max();
+            maior = maxValues.ToList().IndexOf(maxValue);
 
             return maior;
         }

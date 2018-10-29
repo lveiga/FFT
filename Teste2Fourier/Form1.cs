@@ -80,11 +80,11 @@ namespace Teste2Fourier
             chart1.Series["Mercado"].Points.DataBindY(s.Mercado);
             chart2.Series["SomaOndas"].Points.DataBindY(s.SomaOndas);
 
-            for (int coluna = 0; coluna < 9; coluna++)
+            for (int coluna = 0; coluna < 1; coluna++)
             {
                 for (int linha = 0; linha < 30; linha++)
                 {
-                    double mag = (1.0 / 30) * (Math.Sqrt(Math.Pow(s.complex[coluna, linha].Real, 2) + Math.Pow(s.complex[coluna, linha].Imaginary, 2)));
+                    double mag = (1.0 / 30) * (Math.Sqrt(Math.Pow(s.complex[s.maior, linha].Real, 2) + Math.Pow(s.complex[s.maior, linha].Imaginary, 2)));
                     chart3.Series["Frequency"].Points.AddXY(1 * linha, mag);
                  }
              }
