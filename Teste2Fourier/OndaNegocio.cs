@@ -1,28 +1,35 @@
-﻿using MathNet.Numerics.IntegralTransforms;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 
 namespace Teste2Fourier
 {
     public class OndaNegocio
     {
-        private int qtdProcesso = 0;
+        private static int qtdProcesso = 0;
+
+        public double[,] matrixOndas = null;
+        public double[]  MercadoTotal = null;
+        public double[]  Mercado = null;
+        public double[]  SomaOndas = null;
+        public double[,] matrixSomaOndas = null;
+        public Complex[,] complex = null;
+        public int maior = 0;
+
         public OndaNegocio(int qtd)
         {
             qtdProcesso = qtd;
+            matrixOndas = new double[10, qtdProcesso];
+            MercadoTotal = new double[1000];
+            Mercado = new double[qtdProcesso];
+            SomaOndas = new double[qtdProcesso];
+            matrixSomaOndas = new double[9, qtdProcesso + 1];
+            complex = new Complex[9, qtdProcesso];
         }
-        public double[,] matrixOndas = new double[10, 30];
-        public double[] MercadoTotal = new double[1000];
-        public double[] Mercado = new double[30];
-        public double[] SomaOndas = new double[30];
-        public double[,] matrixSomaOndas = new double[9, 31];
-        public Complex[,] complex = new Complex[9, 30];
-        public int maior = 0;
+
 
         public List<OHLCEntity> processar()
         {
@@ -70,11 +77,11 @@ namespace Teste2Fourier
             }
 
             double mediaPeriodo = 0;
-            double periodo = 30;
-            double[] Base = new double[30];
-            double[,] matrixSenos = new double[10, 31];
-            double[,] matrixConsenos = new double[10, 31];
-            double[] senosIndice1 = new double[30];
+            double periodo = qtdProcesso;
+            double[] Base = new double[qtdProcesso];
+            double[,] matrixSenos = new double[10, qtdProcesso + 1];
+            double[,] matrixConsenos = new double[10, qtdProcesso + 1];
+            double[] senosIndice1 = new double[qtdProcesso];
             double ponto = 0.05;
             double ponto2 = 1.5;
             int countSeno = 0;
@@ -101,14 +108,14 @@ namespace Teste2Fourier
             PreenchendoMelhorOnda();
 
             FrequenciaDolar freq = new FrequenciaDolar();
-            complex = freq.ObterFrequencia(matrixSomaOndas);
+            complex = freq.ObterFrequencia(matrixSomaOndas, qtdProcesso);
         }
 
         private void PreenchendoMelhorOnda()
         {
             maior = ObterMaiorPorcentagem();
 
-            for (int linhaSomaOndas = 0; linhaSomaOndas < 30; linhaSomaOndas++)
+            for (int linhaSomaOndas = 0; linhaSomaOndas < qtdProcesso; linhaSomaOndas++)
             {
                 SomaOndas[linhaSomaOndas] = matrixSomaOndas[maior, linhaSomaOndas];
             }
@@ -118,14 +125,14 @@ namespace Teste2Fourier
         {
             for (int coluna = 0; coluna < 9; coluna++)
             {
-                double[] mediaArray = new double[30];
-                for (int linha = 0; linha < 30; linha++)
+                double[] mediaArray = new double[qtdProcesso];
+                for (int linha = 0; linha < qtdProcesso; linha++)
                 {
                     matrixSomaOndas[coluna, linha] = matrixOndas[0, linha] + matrixOndas[(coluna + 1), linha];
                     mediaArray[linha] = matrixOndas[0, linha] + matrixOndas[(coluna + 1), linha];
                 }
 
-                matrixSomaOndas[coluna, 30] = ComputarCoeficiente(Mercado, mediaArray);
+                matrixSomaOndas[coluna, qtdProcesso] = ComputarCoeficiente(Mercado, mediaArray);
             }
         }
 
@@ -135,7 +142,7 @@ namespace Teste2Fourier
             double[] maxValues = new double[9];
             for (int coluna = 0; coluna < 9; coluna++)
             {
-                maxValues[coluna] = matrixSomaOndas[(coluna), 30];
+                maxValues[coluna] = matrixSomaOndas[(coluna), qtdProcesso];
             }
 
             double maxValue = maxValues.Max();
@@ -148,9 +155,9 @@ namespace Teste2Fourier
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {
-                for (int linha = 0; linha < 30; linha++)
+                for (int linha = 0; linha < qtdProcesso; linha++)
                 {
-                    matrixOndas[coluna, linha] = matrixSenos[coluna, 30] * Math.Sin(0.05 * (linha + 1) * 1.5 * (coluna + 1)) + matrixConsenos[coluna, 30] * Math.Cos(0.05 * (linha + 1) * 1.5 * (coluna + 1));
+                    matrixOndas[coluna, linha] = matrixSenos[coluna, qtdProcesso] * Math.Sin(0.05 * (linha + 1) * 1.5 * (coluna + 1)) + matrixConsenos[coluna, qtdProcesso] * Math.Cos(0.05 * (linha + 1) * 1.5 * (coluna + 1));
                 }
             }
         }
@@ -160,13 +167,13 @@ namespace Teste2Fourier
             for (int coluna = 0; coluna < 10; coluna++)
             {
                 double media = 0;
-                for (int linha = 0; linha < 30; linha++)
+                for (int linha = 0; linha < qtdProcesso; linha++)
                 {
                     matrixConsenos[coluna, linha] = senosBase[linha] * Math.Cos(ponto * (linha + 1) * ponto2 * (coluna + 1));
                     media += matrixConsenos[coluna, linha];
                 }
 
-                matrixConsenos[coluna, 30] = media / 30;
+                matrixConsenos[coluna, qtdProcesso] = media / qtdProcesso;
             }
         }
 
@@ -176,13 +183,13 @@ namespace Teste2Fourier
             {
                 double media = 0;
 
-                for (int linha = 0; linha < 30; linha++)
+                for (int linha = 0; linha < qtdProcesso; linha++)
                 {
                     matrixSenos[coluna, linha] = cosenoBase[linha] * Math.Sin(ponto * (linha + 1) * ponto2 * (coluna + 1));
                     media += matrixSenos[coluna, linha];
                 }
 
-                matrixSenos[coluna, 30] = media / 30;
+                matrixSenos[coluna, qtdProcesso] = media / qtdProcesso;
             }
         }
 

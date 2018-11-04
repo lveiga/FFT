@@ -11,13 +11,13 @@ namespace Teste2Fourier
     public class FrequenciaDolar
     {
 
-        public Complex[,] ObterFrequencia (double[,] somaDeOndas)
+        public Complex[,] ObterFrequencia (double[,] somaDeOndas, int qtdProcesso)
         {
-            Complex[,] complex = new Complex[9, 30];
+            Complex[,] complex = new Complex[9, qtdProcesso];
             for (int coluna = 0; coluna < 9; coluna++)
             {
-                Complex[] complex1 = new Complex[30];
-                for (int linha = 0; linha < 30; linha++)
+                Complex[] complex1 = new Complex[qtdProcesso];
+                for (int linha = 0; linha < qtdProcesso; linha++)
                 {
                     complex[coluna, linha] = new Complex(somaDeOndas[coluna, linha], 0);
                     complex1[linha] = complex[coluna, linha];
@@ -25,7 +25,7 @@ namespace Teste2Fourier
 
                 Fourier.Forward(complex1, FourierOptions.NoScaling);
 
-                for (int linha2 = 0; linha2 < 30; linha2++)
+                for (int linha2 = 0; linha2 < qtdProcesso; linha2++)
                 {
                     complex[coluna, linha2] = complex1[linha2];
                 }

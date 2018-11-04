@@ -20,7 +20,7 @@ namespace Teste2Fourier
         public List<OHLCEntity> lcoOHLCEntity = new List<OHLCEntity>();
         OndaNegocio ondaNegocio = new OndaNegocio(32);
         int skip = 0;
-        int take = 30;
+        int take = 32;
 
         public Form1()
         {
@@ -83,14 +83,20 @@ namespace Teste2Fourier
         {
             List<OHLCEntity> OHLCPeriodo = lcoOHLCEntity.Skip(skip).Take(30).OrderBy(x => x.Data).ToList();
 
-            ondaNegocio.IniciarAnalise(OHLCPeriodo, 30, skip);
+            ondaNegocio.IniciarAnalise(OHLCPeriodo, 32, skip);
 
             double maxValue = ondaNegocio.Mercado.Max();
             double minValue = ondaNegocio.Mercado.Min();
+            double maxValue2 = ondaNegocio.SomaOndas.Max();
+            double minValue2 = ondaNegocio.SomaOndas.Min();
 
             var chart = chart1.ChartAreas[0];
             chart.AxisY.Maximum = maxValue;
             chart.AxisY.Minimum = minValue;
+            chart.AxisY2.Maximum = maxValue2;
+            chart.AxisY2.Minimum = minValue2;
+
+
 
             chart1.Series["Mercado"].Points.DataBindY(ondaNegocio.Mercado);
             chart1.Series["SomaOndas"].Points.DataBindY(ondaNegocio.SomaOndas);
