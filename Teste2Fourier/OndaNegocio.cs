@@ -9,8 +9,13 @@ using System.Threading;
 
 namespace Teste2Fourier
 {
-    public class savio
+    public class OndaNegocio
     {
+        private int qtdProcesso = 0;
+        public OndaNegocio(int qtd)
+        {
+            qtdProcesso = qtd;
+        }
         public double[,] matrixOndas = new double[10, 30];
         public double[] MercadoTotal = new double[1000];
         public double[] Mercado = new double[30];
