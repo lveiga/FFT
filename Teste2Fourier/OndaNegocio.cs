@@ -35,8 +35,8 @@ namespace Teste2Fourier
         {
             CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
             ci.NumberFormat.CurrencyDecimalSeparator = ".";
-            //string filename = @"C:\workspace\FFT_BOT\Teste2Fourier\savio_test.txt";
-            string filename = @"C:\Users\lucas\source\repos\Teste2Fourier\Teste2Fourier\savio_test2.txt";
+            string filename = @"C:\workspace\FFT_BOT\Teste2Fourier\savio_test2.txt";
+            //string filename = @"C:\Users\lucas\source\repos\Teste2Fourier\Teste2Fourier\savio_test2.txt";
             
             int startLine = 0;
             int linhaMercado = 0;
@@ -77,11 +77,11 @@ namespace Teste2Fourier
             }
 
             double mediaPeriodo = 0;
-            double periodo = qtdProcesso;
-            double[] Base = new double[qtdProcesso];
-            double[,] matrixSenos = new double[10, qtdProcesso + 1];
-            double[,] matrixConsenos = new double[10, qtdProcesso + 1];
-            double[] senosIndice1 = new double[qtdProcesso];
+            double periodo = ItemsPerpage;
+            double[] Base = new double[ItemsPerpage];
+            double[,] matrixSenos = new double[10, ItemsPerpage + 1];
+            double[,] matrixConsenos = new double[10, ItemsPerpage + 1];
+            double[] senosIndice1 = new double[ItemsPerpage];
             double ponto = 0.05;
             double ponto2 = 1.5;
             int countSeno = 0;
@@ -97,18 +97,18 @@ namespace Teste2Fourier
                 countSeno++;
             }
 
-            ObterSenos(Base, matrixSenos, ponto, ponto2);
+            ObterSenos(Base, matrixSenos, ponto, ponto2, ItemsPerpage);
 
-            ObterCosenos(Base, matrixSenos, matrixConsenos, ponto, ponto2);
+            ObterCosenos(Base, matrixSenos, matrixConsenos, ponto, ponto2, ItemsPerpage);
 
-            ObterOndas(matrixSenos, matrixConsenos, matrixOndas);
+            ObterOndas(matrixSenos, matrixConsenos, matrixOndas, ItemsPerpage);
 
-            SelecionandoMelhorOnda();
+            SelecionandoMelhorOnda(ItemsPerpage);
 
             PreenchendoMelhorOnda();
 
             FrequenciaDolar freq = new FrequenciaDolar();
-            complex = freq.ObterFrequencia(matrixSomaOndas, qtdProcesso);
+            complex = freq.ObterFrequencia(matrixSomaOndas, ItemsPerpage);
         }
 
         private void PreenchendoMelhorOnda()
@@ -121,7 +121,7 @@ namespace Teste2Fourier
             }
         }
 
-        private void SelecionandoMelhorOnda()
+        private void SelecionandoMelhorOnda(int qtdProcesso)
         {
             for (int coluna = 0; coluna < 9; coluna++)
             {
@@ -151,7 +151,7 @@ namespace Teste2Fourier
             return maior;
         }
 
-        private static void ObterOndas(double[,] matrixSenos, double[,] matrixConsenos, double[,] matrixOndas)
+        private static void ObterOndas(double[,] matrixSenos, double[,] matrixConsenos, double[,] matrixOndas, int qtdProcesso)
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {
@@ -162,7 +162,7 @@ namespace Teste2Fourier
             }
         }
 
-        private static void ObterCosenos(double[] senosBase, double[,] matrixSenos, double[,] matrixConsenos, double ponto, double ponto2)
+        private static void ObterCosenos(double[] senosBase, double[,] matrixSenos, double[,] matrixConsenos, double ponto, double ponto2, int qtdProcesso)
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {
@@ -177,7 +177,7 @@ namespace Teste2Fourier
             }
         }
 
-        private static void ObterSenos(double[] cosenoBase, double[,] matrixSenos, double ponto, double ponto2)
+        private static void ObterSenos(double[] cosenoBase, double[,] matrixSenos, double ponto, double ponto2, int qtdProcesso)
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {

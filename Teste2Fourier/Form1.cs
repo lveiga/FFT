@@ -20,28 +20,75 @@ namespace Teste2Fourier
         public List<OHLCEntity> lcoOHLCEntity = new List<OHLCEntity>();
         OndaNegocio ondaNegocio = new OndaNegocio(32);
         int skip = 0;
-        int take = 32;
+        int defaultValue = 32;
+        int qtdProcesso8, qtdProcesso16, qtdProcesso64, qtdProcesso128 = 0;
+        private ChartArea aChart8 = null;
+        private ChartArea aChart16 = null;
+        private ChartArea aChart32 = null;
+        private ChartArea aChart64 = null;
+        private ChartArea aChart128 = null;
 
         public Form1()
         {
             InitializeComponent();
 
             button1.Enabled = false;
+            chk32.Enabled = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            IniciarProcessamento();
+        }
+        
+        private void button1_Click(object sender, EventArgs e)
+        {
+            aChart32 = chart1.ChartAreas[0];
+            ExecutarProximoMinuto(defaultValue, aChart32, chart1);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTick;
+            timer.Start();
+            button1.Enabled = false;
+        }
+
+        private void HandleTimerTick(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(defaultValue, aChart32, chart1);
+        }
+
+        private void HandleTimerTickCheck8(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(qtdProcesso8, aChart8, chart8);
+        }
+
+        private void HandleTimerTickCheck16(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(qtdProcesso16, aChart16, chart16);
+        }
+
+        private void HandleTimerTickCheck64(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(qtdProcesso64, aChart64, chart64);
+        }
+
+        private void HandleTimerTickCheck128(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(qtdProcesso128, aChart128, chart128);
+        }
+
+        private void IniciarProcessamento()
+        {
             lcoOHLCEntity = ondaNegocio.processar();
 
-            List<OHLCEntity> OHLCPeriodo = lcoOHLCEntity.Skip(skip).Take(take).OrderBy(x => x.Data).ToList();
+            List<OHLCEntity> OHLCPeriodo = lcoOHLCEntity.Skip(skip).Take(defaultValue).OrderBy(x => x.Data).ToList();
 
-            ondaNegocio.IniciarAnalise(OHLCPeriodo, take, skip);
+            ondaNegocio.IniciarAnalise(OHLCPeriodo, defaultValue, skip);
 
             double maxValue = ondaNegocio.Mercado.Max();
             double minValue = ondaNegocio.Mercado.Min();
             double maxValue2 = ondaNegocio.SomaOndas.Max();
             double minValue2 = ondaNegocio.SomaOndas.Min();
-            
+
             var chart = chart1.ChartAreas[0];
             chart.AxisY.Maximum = maxValue;
             chart.AxisY.Minimum = minValue;
@@ -63,34 +110,19 @@ namespace Teste2Fourier
             skip++;
             button1.Enabled = true;
         }
-        
-        private void button1_Click(object sender, EventArgs e)
+
+        private void ExecutarProximoMinuto(int qtdProcesso, ChartArea chart, Chart chart1)
         {
-            ExecutarProximoMinuto();
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
-            timer.Tick += HandleTimerTick;
-            timer.Start();
-            button1.Enabled = false;
-        }
+            List<OHLCEntity> OHLCPeriodo = lcoOHLCEntity.Skip(skip).Take(qtdProcesso).OrderBy(x => x.Data).ToList();
 
-        private void HandleTimerTick(object sender, EventArgs e)
-        {
-            ExecutarProximoMinuto();
-        }
-
-
-        private void ExecutarProximoMinuto()
-        {
-            List<OHLCEntity> OHLCPeriodo = lcoOHLCEntity.Skip(skip).Take(30).OrderBy(x => x.Data).ToList();
-
-            ondaNegocio.IniciarAnalise(OHLCPeriodo, 32, skip);
+            ondaNegocio.IniciarAnalise(OHLCPeriodo, qtdProcesso, skip);
 
             double maxValue = ondaNegocio.Mercado.Max();
             double minValue = ondaNegocio.Mercado.Min();
             double maxValue2 = ondaNegocio.SomaOndas.Max();
             double minValue2 = ondaNegocio.SomaOndas.Min();
 
-            var chart = chart1.ChartAreas[0];
+            
             chart.AxisY.Maximum = maxValue;
             chart.AxisY.Minimum = minValue;
             chart.AxisY2.Maximum = maxValue2;
@@ -103,9 +135,9 @@ namespace Teste2Fourier
 
             for (int coluna = 0; coluna < 1; coluna++)
             {
-                for (int linha = 0; linha < 30; linha++)
+                for (int linha = 0; linha < qtdProcesso; linha++)
                 {
-                    double mag = (1.0 / 30) * (Math.Sqrt(Math.Pow(ondaNegocio.complex[ondaNegocio.maior, linha].Real, 2) + Math.Pow(ondaNegocio.complex[ondaNegocio.maior, linha].Imaginary, 2)));
+                    double mag = (1.0 / qtdProcesso) * (Math.Sqrt(Math.Pow(ondaNegocio.complex[ondaNegocio.maior, linha].Real, 2) + Math.Pow(ondaNegocio.complex[ondaNegocio.maior, linha].Imaginary, 2)));
                     chart3.Series["Frequency"].Points.AddXY(1 * linha, mag);
                 }
             }
@@ -113,59 +145,61 @@ namespace Teste2Fourier
             skip++;
         }
 
-        public void CreateYAxis(Chart chart, ChartArea area, Series series, float axisOffset, float labelsSize)
+        private void chk8_CheckedChanged(object sender, EventArgs e)
         {
-            // Create new chart area for original series
-            ChartArea areaSeries = chart.ChartAreas.Add("ChartArea_" + series.Name);
-            areaSeries.BackColor = Color.Transparent;
-            areaSeries.BorderColor = Color.Transparent;
-            areaSeries.Position.FromRectangleF(area.Position.ToRectangleF());
-            areaSeries.InnerPlotPosition.FromRectangleF(area.InnerPlotPosition.ToRectangleF());
-            areaSeries.AxisX.MajorGrid.Enabled = false;
-            areaSeries.AxisX.MajorTickMark.Enabled = false;
-            areaSeries.AxisX.LabelStyle.Enabled = false;
-            areaSeries.AxisY.MajorGrid.Enabled = false;
-            areaSeries.AxisY.MajorTickMark.Enabled = false;
-            areaSeries.AxisY.LabelStyle.Enabled = false;
-            areaSeries.AxisY.IsStartedFromZero = area.AxisY.IsStartedFromZero;
+            if (!chk8.Enabled)
+                return;
+
+            aChart8 = chart8.ChartAreas[0];
+            qtdProcesso8 = 8;
+            ExecutarProximoMinuto(qtdProcesso8, aChart8, chart8);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTickCheck8;
+            timer.Start();
+            
+        }
+
+        private void chk16_CheckedChanged(object sender, EventArgs e)
+        {
+
+            if (!chk16.Enabled)
+                return;
+
+            aChart16 = chart16.ChartAreas[0];
+            qtdProcesso16 = 16;
+            ExecutarProximoMinuto(qtdProcesso16, aChart16, chart16);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTickCheck16;
+            timer.Start();
+        }
+
+        private void chk64_CheckedChanged(object sender, EventArgs e)
+        {
+
+            if (!chk64.Enabled)
+                return;
 
 
-            series.ChartArea = areaSeries.Name;
+            aChart64 = chart16.ChartAreas[0];
+            qtdProcesso64 = 64;
+            ExecutarProximoMinuto(qtdProcesso64, aChart64, chart64);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTickCheck64;
+            timer.Start();
+        }
 
-            // Create new chart area for axis
-            ChartArea areaAxis = chart.ChartAreas.Add("AxisY_" + series.ChartArea);
-            areaAxis.BackColor = Color.Transparent;
-            areaAxis.BorderColor = Color.Transparent;
-            areaAxis.Position.FromRectangleF(chart.ChartAreas[series.ChartArea].Position.ToRectangleF());
-            areaAxis.InnerPlotPosition.FromRectangleF(chart.ChartAreas[series.ChartArea].InnerPlotPosition.ToRectangleF());
+        private void chk128_CheckedChanged(object sender, EventArgs e)
+        {
 
-            // Create a copy of specified series
-            Series seriesCopy = chart.Series.Add(series.Name + "_Copy");
-            seriesCopy.ChartType = series.ChartType;
-            foreach (DataPoint point in series.Points)
-            {
-                seriesCopy.Points.AddXY(point.XValue, point.YValues[0]);
-            }
+            if (!chk128.Enabled)
+                return;
 
-            // Hide copied series
-            seriesCopy.IsVisibleInLegend = false;
-            seriesCopy.Color = Color.Transparent;
-            seriesCopy.BorderColor = Color.Transparent;
-            seriesCopy.ChartArea = areaAxis.Name;
-
-            // Disable drid lines & tickmarks
-            areaAxis.AxisX.LineWidth = 0;
-            areaAxis.AxisX.MajorGrid.Enabled = false;
-            areaAxis.AxisX.MajorTickMark.Enabled = false;
-            areaAxis.AxisX.LabelStyle.Enabled = false;
-            areaAxis.AxisY.MajorGrid.Enabled = false;
-            areaAxis.AxisY.IsStartedFromZero = area.AxisY.IsStartedFromZero;
-            areaAxis.AxisY.LabelStyle.Font = area.AxisY.LabelStyle.Font;
-
-            // Adjust area position
-            areaAxis.Position.X -= axisOffset;
-            areaAxis.InnerPlotPosition.X += labelsSize;
-
+            aChart128 = chart128.ChartAreas[0];
+            qtdProcesso128 = 128;
+            ExecutarProximoMinuto(qtdProcesso128, aChart128, chart128);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTickCheck128;
+            timer.Start();
         }
     }
 }
