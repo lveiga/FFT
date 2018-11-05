@@ -12,22 +12,16 @@ namespace Teste2Fourier
         private static int qtdProcesso = 0;
 
         public double[,] matrixOndas = null;
-        public double[]  MercadoTotal = null;
+        public double[]  MercadoTotal = new double[1000];
         public double[]  Mercado = null;
         public double[]  SomaOndas = null;
         public double[,] matrixSomaOndas = null;
         public Complex[,] complex = null;
         public int maior = 0;
 
-        public OndaNegocio(int qtd)
+        public OndaNegocio()
         {
-            qtdProcesso = qtd;
-            matrixOndas = new double[10, qtdProcesso];
-            MercadoTotal = new double[1000];
-            Mercado = new double[qtdProcesso];
-            SomaOndas = new double[qtdProcesso];
-            matrixSomaOndas = new double[9, qtdProcesso + 1];
-            complex = new Complex[9, qtdProcesso];
+
         }
 
 
@@ -76,6 +70,14 @@ namespace Teste2Fourier
                 return;
             }
 
+            qtdProcesso = ItemsPerpage;
+            matrixOndas = new double[10, ItemsPerpage];
+            
+            Mercado = new double[ItemsPerpage];
+            SomaOndas = new double[ItemsPerpage];
+            matrixSomaOndas = new double[9, ItemsPerpage + 1];
+            complex = new Complex[9, ItemsPerpage];
+
             double mediaPeriodo = 0;
             double periodo = ItemsPerpage;
             double[] Base = new double[ItemsPerpage];
@@ -105,15 +107,15 @@ namespace Teste2Fourier
 
             SelecionandoMelhorOnda(ItemsPerpage);
 
-            PreenchendoMelhorOnda();
+            PreenchendoMelhorOnda(ItemsPerpage);
 
             FrequenciaDolar freq = new FrequenciaDolar();
             complex = freq.ObterFrequencia(matrixSomaOndas, ItemsPerpage);
         }
 
-        private void PreenchendoMelhorOnda()
+        private void PreenchendoMelhorOnda(int quantidade)
         {
-            maior = ObterMaiorPorcentagem();
+            maior = ObterMaiorPorcentagem(quantidade);
 
             for (int linhaSomaOndas = 0; linhaSomaOndas < qtdProcesso; linhaSomaOndas++)
             {
@@ -136,13 +138,13 @@ namespace Teste2Fourier
             }
         }
 
-        private int ObterMaiorPorcentagem()
+        private int ObterMaiorPorcentagem(int quantidade)
         {
             int maior = 0;
             double[] maxValues = new double[9];
             for (int coluna = 0; coluna < 9; coluna++)
             {
-                maxValues[coluna] = matrixSomaOndas[(coluna), qtdProcesso];
+                maxValues[coluna] = matrixSomaOndas[(coluna), quantidade];
             }
 
             double maxValue = maxValues.Max();
@@ -151,45 +153,45 @@ namespace Teste2Fourier
             return maior;
         }
 
-        private static void ObterOndas(double[,] matrixSenos, double[,] matrixConsenos, double[,] matrixOndas, int qtdProcesso)
+        private static void ObterOndas(double[,] matrixSenos, double[,] matrixConsenos, double[,] matrixOndas, int quantidade)
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {
-                for (int linha = 0; linha < qtdProcesso; linha++)
+                for (int linha = 0; linha < quantidade; linha++)
                 {
-                    matrixOndas[coluna, linha] = matrixSenos[coluna, qtdProcesso] * Math.Sin(0.05 * (linha + 1) * 1.5 * (coluna + 1)) + matrixConsenos[coluna, qtdProcesso] * Math.Cos(0.05 * (linha + 1) * 1.5 * (coluna + 1));
+                    matrixOndas[coluna, linha] = matrixSenos[coluna, quantidade] * Math.Sin(0.05 * (linha + 1) * 1.5 * (coluna + 1)) + matrixConsenos[coluna, quantidade] * Math.Cos(0.05 * (linha + 1) * 1.5 * (coluna + 1));
                 }
             }
         }
 
-        private static void ObterCosenos(double[] senosBase, double[,] matrixSenos, double[,] matrixConsenos, double ponto, double ponto2, int qtdProcesso)
+        private static void ObterCosenos(double[] senosBase, double[,] matrixSenos, double[,] matrixConsenos, double ponto, double ponto2, int quantidade)
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {
                 double media = 0;
-                for (int linha = 0; linha < qtdProcesso; linha++)
+                for (int linha = 0; linha < quantidade; linha++)
                 {
                     matrixConsenos[coluna, linha] = senosBase[linha] * Math.Cos(ponto * (linha + 1) * ponto2 * (coluna + 1));
                     media += matrixConsenos[coluna, linha];
                 }
 
-                matrixConsenos[coluna, qtdProcesso] = media / qtdProcesso;
+                matrixConsenos[coluna, quantidade] = media / quantidade;
             }
         }
 
-        private static void ObterSenos(double[] cosenoBase, double[,] matrixSenos, double ponto, double ponto2, int qtdProcesso)
+        private static void ObterSenos(double[] cosenoBase, double[,] matrixSenos, double ponto, double ponto2, int quantidade)
         {
             for (int coluna = 0; coluna < 10; coluna++)
             {
                 double media = 0;
 
-                for (int linha = 0; linha < qtdProcesso; linha++)
+                for (int linha = 0; linha < quantidade; linha++)
                 {
                     matrixSenos[coluna, linha] = cosenoBase[linha] * Math.Sin(ponto * (linha + 1) * ponto2 * (coluna + 1));
                     media += matrixSenos[coluna, linha];
                 }
 
-                matrixSenos[coluna, qtdProcesso] = media / qtdProcesso;
+                matrixSenos[coluna, quantidade] = media / quantidade;
             }
         }
 

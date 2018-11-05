@@ -18,7 +18,7 @@ namespace Teste2Fourier
     public partial class Form1 : Form
     {
         public List<OHLCEntity> lcoOHLCEntity = new List<OHLCEntity>();
-        OndaNegocio ondaNegocio = new OndaNegocio(32);
+        OndaNegocio ondaNegocio = new OndaNegocio();
         int skip = 0;
         int defaultValue = 32;
         int qtdProcesso8, qtdProcesso16, qtdProcesso64, qtdProcesso128 = 0;
@@ -51,30 +51,6 @@ namespace Teste2Fourier
             button1.Enabled = false;
         }
 
-        private void HandleTimerTick(object sender, EventArgs e)
-        {
-            ExecutarProximoMinuto(defaultValue, aChart32, chart1);
-        }
-
-        private void HandleTimerTickCheck8(object sender, EventArgs e)
-        {
-            ExecutarProximoMinuto(qtdProcesso8, aChart8, chart8);
-        }
-
-        private void HandleTimerTickCheck16(object sender, EventArgs e)
-        {
-            ExecutarProximoMinuto(qtdProcesso16, aChart16, chart16);
-        }
-
-        private void HandleTimerTickCheck64(object sender, EventArgs e)
-        {
-            ExecutarProximoMinuto(qtdProcesso64, aChart64, chart64);
-        }
-
-        private void HandleTimerTickCheck128(object sender, EventArgs e)
-        {
-            ExecutarProximoMinuto(qtdProcesso128, aChart128, chart128);
-        }
 
         private void IniciarProcessamento()
         {
@@ -159,6 +135,38 @@ namespace Teste2Fourier
             
         }
 
+        private void chk32_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chk128_CheckedChanged_1(object sender, EventArgs e)
+        {
+            if (!chk128.Enabled)
+                return;
+
+            aChart128 = chart128.ChartAreas[0];
+            qtdProcesso128 = 128;
+            ExecutarProximoMinuto(qtdProcesso128, aChart128, chart128);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTickCheck128;
+            timer.Start();
+        }
+
+        private void chk64_CheckedChanged_1(object sender, EventArgs e)
+        {
+            if (!chk64.Enabled)
+                return;
+
+
+            aChart64 = chart16.ChartAreas[0];
+            qtdProcesso64 = 64;
+            ExecutarProximoMinuto(qtdProcesso64, aChart64, chart64);
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += HandleTimerTickCheck64;
+            timer.Start();
+        }
+
         private void chk16_CheckedChanged(object sender, EventArgs e)
         {
 
@@ -173,33 +181,33 @@ namespace Teste2Fourier
             timer.Start();
         }
 
-        private void chk64_CheckedChanged(object sender, EventArgs e)
+        #region handlers
+        private void HandleTimerTick(object sender, EventArgs e)
         {
+            ExecutarProximoMinuto(defaultValue, aChart32, chart1);
+        }
 
-            if (!chk64.Enabled)
-                return;
+        private void HandleTimerTickCheck8(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(qtdProcesso8, aChart8, chart8);
+        }
 
+        private void HandleTimerTickCheck16(object sender, EventArgs e)
+        {
+            ExecutarProximoMinuto(qtdProcesso16, aChart16, chart16);
+        }
 
-            aChart64 = chart16.ChartAreas[0];
-            qtdProcesso64 = 64;
+        private void HandleTimerTickCheck64(object sender, EventArgs e)
+        {
             ExecutarProximoMinuto(qtdProcesso64, aChart64, chart64);
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
-            timer.Tick += HandleTimerTickCheck64;
-            timer.Start();
         }
 
-        private void chk128_CheckedChanged(object sender, EventArgs e)
+        private void HandleTimerTickCheck128(object sender, EventArgs e)
         {
-
-            if (!chk128.Enabled)
-                return;
-
-            aChart128 = chart128.ChartAreas[0];
-            qtdProcesso128 = 128;
             ExecutarProximoMinuto(qtdProcesso128, aChart128, chart128);
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
-            timer.Tick += HandleTimerTickCheck128;
-            timer.Start();
         }
+
+        #endregion
+
     }
 }
