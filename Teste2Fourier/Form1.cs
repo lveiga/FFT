@@ -159,7 +159,7 @@ namespace Teste2Fourier
                 return;
 
 
-            aChart64 = chart16.ChartAreas[0];
+            aChart64 = chart64.ChartAreas[0];
             qtdProcesso64 = 64;
             ExecutarProximoMinuto(qtdProcesso64, aChart64, chart64);
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
