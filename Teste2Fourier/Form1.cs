@@ -32,12 +32,13 @@ namespace Teste2Fourier
         {
             InitializeComponent();
 
-            button1.Enabled = false;
-            chk32.Enabled = true;
+            EnableOrDisableCheckBox(false);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            chk32.Checked = true;
+            EnableOrDisableCheckBox(true);
             IniciarProcessamento();
         }
         
@@ -179,6 +180,16 @@ namespace Teste2Fourier
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 1000 };
             timer.Tick += HandleTimerTickCheck16;
             timer.Start();
+        }
+
+        private void EnableOrDisableCheckBox(bool status)
+        {
+            button1.Enabled = status;
+            chk32.Enabled = status;
+            chk8.Enabled = status;
+            chk16.Enabled = status;
+            chk64.Enabled = status;
+            chk128.Enabled = status;
         }
 
         #region handlers
